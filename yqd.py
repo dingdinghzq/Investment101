@@ -17,6 +17,7 @@ from six.moves import urllib
 import time
 import pandas as pd
 import datetime as dt
+import numpy as np
 
 '''
 Starting on May 2017, Yahoo financial has terminated its service on
@@ -97,16 +98,18 @@ def load_yahoo_quote(ticker, begindate, enddate, info = 'quote', format_output =
 	'''
 	This function load the corresponding history/divident/split from Yahoo.
 	'''
+
+	# Prepare the parameters and the URL
+	tb = get_epoch_time(begindate)
+	if enddate == 'today':
+		enddate = dt.date.today().strftime('%Y%m%d')
+
+	te = get_epoch_time(enddate, True)
+
 	# Check to make sure that the cookie and crumb has been loaded
 	global _cookie, _crumb
 	if _cookie == None or _crumb == None:
 		_get_cookie_crumb()
-
-    
-
-	# Prepare the parameters and the URL
-	tb = get_epoch_time(begindate)
-	te = get_epoch_time(enddate, True)
 
 	param = dict()
 	param['period1'] = int(tb)
@@ -136,4 +139,11 @@ def load_yahoo_quote(ticker, begindate, enddate, info = 'quote', format_output =
 		nested_alines = [line.split(',') for line in alines.split('\n')[1:]]
 		cols = alines.split('\n')[0].split(',')
 		adf = pd.DataFrame.from_records(nested_alines[:-1], columns=cols)
+		adf['Date'] = pd.to_datetime(adf['Date'])
+		adf['Open'] = adf['Open'].astype(float)
+		adf['High'] = adf['High'].astype(float)
+		adf['Low'] = adf['Low'].astype(float)
+		adf['Close'] = adf['Close'].astype(float)
+		adf['Adj Close'] = adf['Adj Close'].astype(float)
+		adf['Volume'] = adf['Volume'].astype(np.int64)
 		return adf
