@@ -108,8 +108,8 @@ def load_yahoo_quote(ticker, begindate, enddate, info = 'quote', format_output =
 
 	# Check to make sure that the cookie and crumb has been loaded
 	global _cookie, _crumb
-	if _cookie == None or _crumb == None:
-		_get_cookie_crumb()
+	#if _cookie == None or _crumb == None:
+	_get_cookie_crumb()
 
 	param = dict()
 	param['period1'] = int(tb)
